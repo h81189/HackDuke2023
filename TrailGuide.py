@@ -37,9 +37,9 @@ def create_box(y,x,km):
   xmax=x+ext
   return [xmin,xmax,ymin,ymax]
 
-coords=[47,-121]
-[xmin,xmax,ymin,ymax]=create_box(coords[0],coords[1],5)
-res=100
+coords=[46.99,-121]
+[xmin,xmax,ymin,ymax]=create_box(coords[0],coords[1],1)
+res=30
 steps=(xmax-xmin)/res #steps is used to be neg value bc neg sign
 currx=xmin
 curry=ymin
@@ -71,6 +71,7 @@ try:
 except:
     elevation=np.reshape(elevation,(res+1,-1))
 
+
 x, y = np.meshgrid(Y,X)
 # from scipy.interpolate import RegularGridInterpolator
 # interp=RegularGridInterpolator((X, Y), elevation,method='cubic',bounds_error=False)
@@ -90,9 +91,17 @@ ax.plot([coords[0],coords[0]],[coords[1],coords[1]],[np.min(elevation),np.max(el
 api = overpy.Overpass()
 minlen=10
 result = api.query("[out:json];way("+str(ymin)+","+str(xmin)+","+str(ymax)+","+str(xmax)+");out;")
-waylats=[[n.lat for n in w.get_nodes(resolve_missing=True)] for w in result.ways] # ways x nodes
-waylongs=[[n.lon for n in w.get_nodes(resolve_missing=True)] for w in result.ways] # ways x nodes
+waylats=[[float(n.lat) for n in w.get_nodes(resolve_missing=True)] for w in result.ways] # ways x nodes
+waylongs=[[float(n.lon) for n in w.get_nodes(resolve_missing=True)] for w in result.ways] # ways x nodes
 
+plt.figure(2)
 for way in range(len(waylats)):
   if len(waylongs[way])>minlen:
-    plt.plot(waylongs[way],waylats[way])
+    plt.plot(waylongs[way],waylats[way],np.zeros(len(waylats[way])))
+# ax.set_ylim((ymin,ymax))
+# ax.set_xlim((xmin,xmax))
+plt.ylim(ymin,ymax)
+plt.xlim(xmin,xmax)
+plt.gca().get_xaxis().get_major_formatter().set_useOffset(False)
+
+    
